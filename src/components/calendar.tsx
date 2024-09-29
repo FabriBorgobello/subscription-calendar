@@ -1,4 +1,6 @@
-import Link from "next/link";
+import { Link } from "next-view-transitions";
+import { MOCK_SUBSCRIPTIONS, Subscription } from "@/models/subscription";
+import Image from "next/image";
 
 function getDaysInMonth(month: number, year: number) {
   return new Date(year, month, 0).getDate();
@@ -55,29 +57,40 @@ function CalendarView({ year, month }: { year: number; month: number }) {
   return (
     <table>
       <thead>
-        <tr>
-          <th>Sun</th>
-          <th>Mon</th>
-          <th>Tue</th>
-          <th>Wed</th>
-          <th>Thu</th>
-          <th>Fri</th>
-          <th>Sat</th>
+        <tr className="flex justify-between">
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            <th key={day} className="flex-1">
+              {day}
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>
         {Array.from(
           { length: Math.ceil((daysInMonth + firstDayOfMonth) / 7) },
           (_, week) => (
-            <tr key={week}>
+            <tr key={week} className="flex h-28">
               {Array.from({ length: 7 }, (_, day) => {
                 const date = week * 7 + day - firstDayOfMonth + 1;
 
                 const isValidDate = date > 0 && date <= daysInMonth;
 
                 return (
-                  <td key={day}>
-                    {isValidDate ? <CalendarDayCell date={date} /> : null}
+                  <td
+                    key={day}
+                    id={date.toString()}
+                    className="flex-1 h-full overflow-hidden"
+                  >
+                    {isValidDate ? (
+                      <CalendarDayCell
+                        date={date}
+                        subscription={
+                          MOCK_SUBSCRIPTIONS.find(
+                            (subscription) => subscription.billingDate === date
+                          ) || null
+                        }
+                      />
+                    ) : null}
                   </td>
                 );
               })}
@@ -89,10 +102,33 @@ function CalendarView({ year, month }: { year: number; month: number }) {
   );
 }
 
-function CalendarDayCell({ date }: { date: number | null }) {
+function CalendarDayCell({
+  date,
+  subscription,
+}: {
+  date: number | null;
+  subscription: Subscription | null;
+}) {
   return (
-    <div className="p-4 border flex justify-center">
+    <div className="p-4 border flex justify-start flex-col items-center h-full gap-4">
       <p>{date}</p>
+      {subscription ? (
+        <div
+          style={{
+            viewTransitionName: `logo-${subscription.name.toLowerCase()}`,
+          }}
+          className="flex justify-center items-center h-10 w-full overflow-hidden max-w-24"
+        >
+          <Image
+            id={subscription.name}
+            className="h-full w-auto"
+            src={subscription.logo}
+            alt={subscription.name}
+            height={0}
+            width={0}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
