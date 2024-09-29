@@ -10,7 +10,7 @@ function getFirstDayOfMonth(month: number, year: number) {
 
 export function Calendar({ year, month }: { year: number; month: number }) {
   return (
-    <div>
+    <div className="border border-red-500 flex flex-col">
       <CalendarNavigation year={year} month={month} />
       <CalendarView year={year} month={month} />
     </div>
@@ -19,7 +19,7 @@ export function Calendar({ year, month }: { year: number; month: number }) {
 
 function CalendarNavigation({ year, month }: { year: number; month: number }) {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center w-full justify-between">
       {/* Previous year */}
       <Link
         className="border border-1 p-2"
@@ -30,7 +30,7 @@ function CalendarNavigation({ year, month }: { year: number; month: number }) {
         className="border border-1 p-2"
         href={month === 1 ? `/${year - 1}/12` : `/${year}/${month - 1}`}
       >{`<`}</Link>
-      <h1>
+      <h1 className="flex-1 text-center">
         {month}/{year}
       </h1>
       {/* Next month */}
@@ -72,8 +72,13 @@ function CalendarView({ year, month }: { year: number; month: number }) {
             <tr key={week}>
               {Array.from({ length: 7 }, (_, day) => {
                 const date = week * 7 + day - firstDayOfMonth + 1;
+
+                const isValidDate = date > 0 && date <= daysInMonth;
+
                 return (
-                  <td key={day}>{date > 0 && date <= daysInMonth && date}</td>
+                  <td key={day}>
+                    {isValidDate ? <CalendarDayCell date={date} /> : null}
+                  </td>
                 );
               })}
             </tr>
@@ -81,5 +86,13 @@ function CalendarView({ year, month }: { year: number; month: number }) {
         )}
       </tbody>
     </table>
+  );
+}
+
+function CalendarDayCell({ date }: { date: number | null }) {
+  return (
+    <div className="p-4 border flex justify-center">
+      <p>{date}</p>
+    </div>
   );
 }
